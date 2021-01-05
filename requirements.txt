@@ -1,4 +1,4 @@
 beautifulsoup4==4.7.1
-langdetect==1.0.7
-selenium==3.141.0
-lxml==4.3.1
+pandas==0.25.3
+requests==2.24.0
+urllib3==1.24.3
