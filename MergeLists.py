@@ -42,8 +42,8 @@ testUrls = [
   "https://www.goodreads.com/review/list/62787798-bill-gates?shelf=read"
 ]
 
-URL_LIST = fictionListUrls
-OUTPUT_NAME = "novels"
+URL_LIST = fictionListUrls + nonFictionListUrls
+OUTPUT_NAME = "together"
 
 def get_book_urls(base_url):
     print("Fetching list: {}".format(base_url))
@@ -94,19 +94,20 @@ for url in unique_urls:
 
             #Extract rating particulars
             rating_divs = note_soup.find_all("div", {"id": "bookMeta"})
-            rating_text = float(rating_divs[0].find_all("span", {"itemprop": "ratingValue"})[0].text)
-            book_rating.append(rating_text)
+            rating = float(rating_divs[0].find_all("span", {"itemprop": "ratingValue"})[0].text)
 
             #Standout score - tooltip is rendered dynamically, so must be extracted from inside CDATA with regex.
             full_str = str(rating_divs[0])
             voting_subtotal_strs = re.findall('% \(.*?\)', full_str)
-            print("strs {}".format(voting_subtotal_strs))
+            #print("strs {}".format(voting_subtotal_strs))
             voting_subtotals = [float(s[s.find("(")+1:s.find(")")]) for s in voting_subtotal_strs]
-            print("subtotals {}".format(voting_subtotals))
+            #print("subtotals {}".format(voting_subtotals))
             five_stars = voting_subtotals[0]
             four_stars = voting_subtotals[1]
             three_stars = voting_subtotals[2]
             score = (five_stars/(four_stars+three_stars))
+
+            book_rating.append(rating)
             book_standout_score.append(score)
 
         except Exception as e:
@@ -133,10 +134,10 @@ book_df["Rating"] = book_rating
 print("Sorting Dataframess")
 
 # Sorting the dataframe based on ratings
-sorted_soscore_book_df = book_df.sort_values(by=['Count', 'SOScore'], ascending = False)
+sorted_soscore_book_df = book_df.sort_values(by=['SOScore'], ascending = False)
 sorted_soscore_book_df.reset_index(drop=True, inplace = True)
 
-sorted_rating_book_df = book_df.sort_values(by=['Count', 'Rating'], ascending = False)
+sorted_rating_book_df = book_df.sort_values(by=['Rating'], ascending = False)
 sorted_rating_book_df.reset_index(drop=True, inplace = True)
 
 print("Exporting Dataframes")
